@@ -44,10 +44,11 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     return created_user
 
 # ----------------- Login -----------------
-@router.post("/login")
+@router.post("/authenticate")
 def login(user: UserLogin, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.email == user.email).first()
-    if not db_user or not db_user.verify_password(user.password):
+    service = UserService(db)
+    db_user = service.authenticate_user(user.email, user.password)
+    if not db_user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_jwt({"user_id": db_user.id, "role": db_user.role})
@@ -62,7 +63,20 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(login_record)
 
-    return {"access_token": token, "token_type": "bearer"}
+    return {"access_token": token, "token_type": "bearer", "user": {"username": db_user.username, "role": db_user.role}}
+
+@router.get("/auth-info")
+def auth_info():
+    """
+    Returns login URL or auth configuration.
+    """
+    return {"login_url": "/login"}
+
+@router.get("/logout")
+def logout(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):
+    # Invalidate token logic (optional, dependent on DB status)
+    # For now we just return success as JWTs are stateless unless blocked
+    return {"message": "Logged out successfully"}
 
 # ----------------- Protected route -----------------
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)):

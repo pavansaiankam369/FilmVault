@@ -1,0 +1,5 @@
+/* 
+  We are removing the default Vite styles that were enforcing max-width and centering text 
+  globally, which broke the application layout.
+  We leave this file empty to avoid conflicts.
+*/

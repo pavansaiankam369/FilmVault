@@ -20,3 +20,6 @@ def hash_password(password: str) -> str:
     if not is_strong_password(password):
         raise ValueError("Password is too weak")
     return pwd_context.hash(password)
+
+def verify_password(plain_password: str,password: str) -> bool:
+    return pwd_context.verify(plain_password, password)

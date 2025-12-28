@@ -29,8 +29,7 @@ __pycache__/
 # Virtual environments
 venv/
 env/
-myenv/
-.myenev/
+myenev/
 .venv/
 
 # ---- Editors & OS ----
